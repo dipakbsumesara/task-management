@@ -33,6 +33,7 @@ const TaskList = () => {
   }, []);
 
   const fetchTasks = async () => {
+    setTasksToUpdate([]);
     const response = await getApi('/tasks');
     setTasks(
       response.data.map((task: ITask, index: number) => {
