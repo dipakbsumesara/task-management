@@ -1,10 +1,11 @@
 // apps/task-manager-frontend/src/app/components/TaskList.jsx
 import React, { useEffect, useState } from 'react';
+import { Button, Grid, Typography } from '@mui/material';
+
 import TaskForm from './TaskForm';
 import { ITask } from 'index';
-
 import { getApi, removeApi } from '../services/axios.service';
-import { Button, Grid, Typography } from '@mui/material';
+import { getTaskColorCode } from '../constants/index';
 
 const TaskList = () => {
   const [tasks, setTasks] = useState<ITask[]>([]);
@@ -55,7 +56,7 @@ const TaskList = () => {
               }}
             >
               <Typography variant="h5">{task.title}</Typography>
-              <Typography fontSize="12px" color="#ccc">
+              <Typography fontSize="12px" color={getTaskColorCode(task.status)}>
                 {task.status}
               </Typography>
             </Grid>
