@@ -1,6 +1,15 @@
 // apps/task-manager-frontend/src/app/components/TaskForm.jsx
 import React, { useState, useEffect, useMemo } from 'react';
-import { Button, Grid, MenuItem, Select, TextField } from '@mui/material';
+import {
+  Alert,
+  Button,
+  Grid,
+  MenuItem,
+  Select,
+  Snackbar,
+  TextField,
+  Typography,
+} from '@mui/material';
 
 import { useParams, useNavigate } from 'react-router-dom';
 
@@ -18,11 +27,13 @@ const TaskForm = () => {
     status: 'To Do',
   });
 
+  const [apiResponseMessage, setApiResponseMessage] = useState('');
+
   useEffect(() => {
     if (params.id) {
       (async () => {
         const response = await getApi(`/tasks/${params.id}`);
-        setTask(response.data);
+        setTask(response.data.data);
       })();
     }
   }, [params]);
@@ -38,18 +49,19 @@ const TaskForm = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
     const url = taskToUpdate ? `/tasks/${task._id}` : '/tasks';
 
-    taskToUpdate ? await patchApi(url, task) : await postApi(url, task);
+    const response = taskToUpdate
+      ? await patchApi(url, task)
+      : await postApi(url, task);
 
-    setTask({
-      title: '',
-      description: '',
-      status: 'To Do',
-    });
+    setApiResponseMessage(response.data.message);
 
     if (!taskToUpdate) {
-      navigate('/');
+      setTimeout(() => {
+        navigate('/');
+      }, 0);
     }
   };
 
@@ -102,6 +114,15 @@ const TaskForm = () => {
           {taskToUpdate ? 'Update Task' : 'Create Task'}
         </Button>
       </Grid>
+      <Snackbar
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        open={!!apiResponseMessage}
+        onClose={() => {}}
+      >
+        <Alert severity="success">
+          <Typography sx={{ mr: 3 }}>{apiResponseMessage}</Typography>
+        </Alert>
+      </Snackbar>
     </form>
   );
 };

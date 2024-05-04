@@ -75,7 +75,7 @@ const TaskList = () => {
         )
       : await getApi('/tasks');
     setTasks(
-      response.data.map((task: ITask, index: number) => {
+      response.data.data.map((task: ITask, index: number) => {
         return { ...task, id: index + 1 };
       })
     );

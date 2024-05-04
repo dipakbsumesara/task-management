@@ -23,6 +23,7 @@ function NoMatch() {
 
 const RenderRoutes = () => {
   return (
+    <BrowserRouter>
       <Routes>
         <Route path="/">
           <Route index element={<TaskList />} />
@@ -31,6 +32,7 @@ const RenderRoutes = () => {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>
+    </BrowserRouter>
   );
 };
 

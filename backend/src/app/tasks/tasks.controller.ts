@@ -12,18 +12,22 @@ import {
 } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 
+import { sendApiResponse } from '../../../../src/lib/utils/util';
+
 @Controller('tasks')
 export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
 
   @Post()
-  create(@Body() createTaskDto: any) {
-    return this.tasksService.create(createTaskDto);
+  async create(@Body() createTaskDto: any) {
+    const task = await this.tasksService.create(createTaskDto);
+    return sendApiResponse('task created successfully!', task);
   }
 
   @Get()
-  findAll(@Query() query: any) {
-    return this.tasksService.findAll(query);
+  async findAll(@Query() query: any) {
+    const tasks = await this.tasksService.findAll(query);
+    return sendApiResponse('task fetched successfully!', tasks);
   }
 
   @Get(':id')
@@ -34,24 +38,27 @@ export class TasksController {
       throw new NotFoundException('invalid id provided!');
     }
 
-    return task;
+    return sendApiResponse('task fetched successfully!', task);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTaskDto: any) {
-    return this.tasksService.update(id, updateTaskDto);
+  async update(@Param('id') id: string, @Body() updateTaskDto: any) {
+    const updatedTask = await this.tasksService.update(id, updateTaskDto);
+    return sendApiResponse('task updated successfully', updatedTask);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.tasksService.delete(id);
+  async remove(@Param('id') id: string) {
+    const deletedTask = await this.tasksService.delete(id);
+    return sendApiResponse('task removed successfully', deletedTask);
   }
 
   @Delete()
-  patchRemove(@Body() deleteManyDto: any) {
+  async patchRemove(@Body() deleteManyDto: any) {
     if (deleteManyDto?.ids?.length === 0) {
       throw new BadRequestException('ids are required field!');
     }
-    return this.tasksService.deleteMany(deleteManyDto);
+    const deletedTasks = await this.tasksService.deleteMany(deleteManyDto);
+    return sendApiResponse('tasks removed successfully', deletedTasks);
   }
 }
