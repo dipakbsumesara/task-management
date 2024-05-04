@@ -7,6 +7,7 @@ import {
   MenuItem,
   Select,
   Snackbar,
+  TextField,
   Typography,
 } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
@@ -56,12 +57,81 @@ interface ITaskTable extends ITask {
   id: string;
 }
 
+const CreateNewTask = () => {
+  const navigate = useNavigate();
+  return (
+    <Grid item sx={{ width: '100%', textAlign: 'right' }}>
+      <Button
+        color="primary"
+        variant="contained"
+        onClick={() => navigate('/task')}
+        sx={{ mb: 2 }}
+      >
+        Create new task
+      </Button>
+    </Grid>
+  );
+};
+
+type SearchBySection = {
+  searchQuery: string;
+  setSearchQuery: any;
+};
+
+const SearchBySection = ({ searchQuery, setSearchQuery }: SearchBySection) => {
+  return (
+    <Grid
+      container
+      sx={{ flexDirection: 'row', gap: 2, alignItems: 'center', mb: 3, width: "fit-content" }}
+    >
+      <TextField onChange={(e) => setSearchQuery(e.target.value)} placeholder='Start typing to begin search' sx={{ width: "400px" }}></TextField>
+    </Grid>
+  );
+};
+
+type FilterBySection = {
+  filterBySelectedStatus: string;
+  setFilterBySelectedStatus: any;
+};
+
+const FilterBySection = ({
+  filterBySelectedStatus,
+  setFilterBySelectedStatus,
+}: FilterBySection) => {
+  return (
+    <Grid
+      container
+      sx={{ flexDirection: 'row', gap: 2, alignItems: 'center', mb: 3, width: "fit-content" }}
+    >
+      <Typography>Filter By: </Typography>
+      <Select
+        value={filterBySelectedStatus}
+        onChange={(e) => {
+          setFilterBySelectedStatus(e.target.value);
+        }}
+        renderValue={(selected) =>
+          !selected ? 'Select Status to filter' : selected
+        }
+        displayEmpty
+      >
+        <MenuItem value="">
+          <em>None</em>
+        </MenuItem>
+        <MenuItem value="To Do">To Do</MenuItem>
+        <MenuItem value="In Progress">In Progress</MenuItem>
+        <MenuItem value="Done">Done</MenuItem>
+      </Select>
+    </Grid>
+  );
+};
+
 const TaskList = () => {
   const navigate = useNavigate();
 
   const [tasks, setTasks] = useState<ITaskTable[]>([]);
   const [tasksToUpdate, setTasksToUpdate] = useState<ITaskTable[]>([]);
   const [filterBySelectedStatus, setFilterBySelectedStatus] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     fetchTasks();
@@ -104,39 +174,21 @@ const TaskList = () => {
 
   return (
     <>
-      <Grid item sx={{ width: '100%', textAlign: 'right' }}>
-        <Button
-          color="primary"
-          variant="contained"
-          onClick={() => navigate('/task')}
-          sx={{ mb: 2 }}
-        >
-          Create new task
-        </Button>
-      </Grid>
+      <CreateNewTask />
 
       <Grid
         container
-        sx={{ flexDirection: 'row', gap: 2, alignItems: 'center', mb: 3 }}
+        sx={{ flexDirection: 'row', justifyContent: 'space-between' }}
       >
-        <Typography>Filter By: </Typography>
-        <Select
-          value={filterBySelectedStatus}
-          onChange={(e) => {
-            setFilterBySelectedStatus(e.target.value);
-          }}
-          renderValue={(selected) =>
-            !selected ? 'Select Status to filter' : selected
-          }
-          displayEmpty
-        >
-          <MenuItem value="">
-            <em>None</em>
-          </MenuItem>
-          <MenuItem value="To Do">To Do</MenuItem>
-          <MenuItem value="In Progress">In Progress</MenuItem>
-          <MenuItem value="Done">Done</MenuItem>
-        </Select>
+        <SearchBySection
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+        />
+
+        <FilterBySection
+          filterBySelectedStatus={filterBySelectedStatus}
+          setFilterBySelectedStatus={setFilterBySelectedStatus}
+        />
       </Grid>
 
       <Grid item sx={{ height: '500px' }}>
