@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Button, Grid, MenuItem, Select, TextField } from '@mui/material';
 
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 
 import { getApi, patchApi, postApi } from '../services/axios.service';
 
@@ -10,6 +10,7 @@ import { ITask } from '../../../../index';
 
 const TaskForm = () => {
   const params = useParams();
+  const navigate = useNavigate();
 
   const [task, setTask] = useState<ITask>({
     title: '',
@@ -46,6 +47,10 @@ const TaskForm = () => {
       description: '',
       status: 'To Do',
     });
+
+    if (!taskToUpdate) {
+      navigate('/');
+    }
   };
 
   return (
