@@ -56,9 +56,13 @@ export const patchApi = async (url: string, payload: any) => {
   }
 };
 
-export const removeApi = async (url: string) => {
+export const removeApi = async (url: string, payload: any = null) => {
   try {
-    return await _axios.delete(url);
+    return payload
+      ? await _axios.delete(url, {
+          data: payload,
+        })
+      : await _axios.delete(url);
   } catch (error) {
     throw error;
   }

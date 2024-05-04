@@ -6,6 +6,8 @@ import {
   Patch,
   Param,
   Delete,
+  NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 
@@ -23,6 +25,17 @@ export class TasksController {
     return this.tasksService.findAll();
   }
 
+  @Get(':id')
+  async findOne(@Param('id') id: string) {
+    const task = await this.tasksService.findOne(id);
+
+    if (!task) {
+      throw new NotFoundException('invalid id provided!');
+    }
+
+    return task;
+  }
+
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateTaskDto: any) {
     return this.tasksService.update(id, updateTaskDto);
@@ -31,5 +44,13 @@ export class TasksController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.tasksService.delete(id);
+  }
+
+  @Delete()
+  patchRemove(@Body() deleteManyDto: any) {
+    if (deleteManyDto?.ids?.length === 0) {
+      throw new BadRequestException('ids are required field!');
+    }
+    return this.tasksService.deleteMany(deleteManyDto);
   }
 }

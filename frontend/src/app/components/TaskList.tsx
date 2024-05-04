@@ -26,7 +26,7 @@ const TaskList = () => {
   const navigate = useNavigate();
 
   const [tasks, setTasks] = useState<ITaskTable[]>([]);
-  const [tasksToUpdate, setTasksToUpdate] = useState<ITask[]>([]);
+  const [tasksToUpdate, setTasksToUpdate] = useState<ITaskTable[]>([]);
 
   useEffect(() => {
     fetchTasks();
@@ -34,25 +34,17 @@ const TaskList = () => {
 
   const fetchTasks = async () => {
     const response = await getApi('/tasks');
-    setTasks(response.data);
+    setTasks(
+      response.data.map((task: ITask, index: number) => {
+        return { ...task, id: index + 1 };
+      })
+    );
   };
 
-  const handleDelete = async (id: any) => {
-    await removeApi(`/tasks/${id}`);
+  const handleDelete = async () => {
+    await removeApi('/tasks', { ids: tasksToUpdate.map((task) => task._id) });
     fetchTasks();
   };
-
-  const rows = [
-    { id: 1, title: 'Snow', description: 'Jon', status: 'To Do' },
-    { id: 2, title: 'Lannister', description: 'Cersei', status: 'To Do' },
-    { id: 3, title: 'Lannister', description: 'Jaime', status: 'To Do' },
-    { id: 4, title: 'Stark', description: 'Arya', status: 'To Do' },
-    { id: 5, title: 'Targaryen', description: 'Daenerys', status: 'To Do' },
-    { id: 6, title: 'Melisandre', description: null, status: 'To Do' },
-    { id: 7, title: 'Clifford', description: 'Ferrara', status: 'To Do' },
-    { id: 8, title: 'Frances', description: 'Rossini', status: 'To Do' },
-    { id: 9, title: 'Roxie', description: 'Harvey', status: 'To Do' },
-  ];
 
   const handleCheckboxSelection = (selected: ITaskTable) => {
     const updatedTasksToUpdate: ITaskTable[] = objectCopy(tasksToUpdate);
@@ -83,7 +75,7 @@ const TaskList = () => {
         </Button>
       </Grid>
       <DataGrid
-        rows={rows}
+        rows={tasks}
         columns={columns}
         onCellClick={(e) => {
           handleCheckboxSelection(e.row);
@@ -118,12 +110,16 @@ const TaskList = () => {
           }}
           action={
             <React.Fragment>
-              {tasksToUpdate.length === 1 ? (
-                <Button color="primary">Edit</Button>
-              ) : (
-                <></>
-              )}
-              <Button color="error">Delete</Button>
+              <Button
+                color="primary"
+                onClick={() => navigate(`/task/${tasksToUpdate[0]._id}`)}
+                disabled={tasksToUpdate.length > 1}
+              >
+                Edit
+              </Button>
+              <Button color="error" onClick={handleDelete}>
+                Delete
+              </Button>
             </React.Fragment>
           }
         >

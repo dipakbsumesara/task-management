@@ -4,7 +4,7 @@ import { Button, Grid, MenuItem, Select, TextField } from '@mui/material';
 
 import { useParams } from 'react-router-dom';
 
-import { patchApi, postApi } from '../services/axios.service';
+import { getApi, patchApi, postApi } from '../services/axios.service';
 
 import { ITask } from '../../../../index';
 
@@ -16,6 +16,15 @@ const TaskForm = () => {
     description: '',
     status: 'To Do',
   });
+
+  useEffect(() => {
+    if (params.id) {
+      (async () => {
+        const response = await getApi(`/tasks/${params.id}`);
+        setTask(response.data);
+      })();
+    }
+  }, [params]);
 
   const taskToUpdate = useMemo(() => {
     return !!params.id;
@@ -58,7 +67,7 @@ const TaskForm = () => {
           value={task.title}
           onChange={(e) => handleChange(e)}
           placeholder="Title"
-          sx={{width: "100%"}}
+          sx={{ width: '100%' }}
           required
         />
         <TextField
@@ -67,10 +76,15 @@ const TaskForm = () => {
           name="description"
           value={task.description}
           onChange={handleChange}
-          sx={{width: "100%"}}
+          sx={{ width: '100%' }}
           placeholder="Description"
         />
-        <Select name="status" value={task.status} onChange={handleChange} sx={{width: "100%"}}>
+        <Select
+          name="status"
+          value={task.status}
+          onChange={handleChange}
+          sx={{ width: '100%' }}
+        >
           <MenuItem value="To Do">To Do</MenuItem>
           <MenuItem value="In Progress">In Progress</MenuItem>
           <MenuItem value="Done">Done</MenuItem>
