@@ -1,27 +1,25 @@
 // apps/task-manager-frontend/src/app/components/TaskForm.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Button, Grid, MenuItem, Select, TextField } from '@mui/material';
+
+import { useParams } from 'react-router-dom';
 
 import { patchApi, postApi } from '../services/axios.service';
 
 import { ITask } from '../../../../index';
-import { Button, Grid, MenuItem, Select, TextField } from '@mui/material';
 
-type Props = {
-  taskToUpdate: any;
-  setTaskToUpdate: any;
-  fetchTasks: any;
-};
+const TaskForm = () => {
+  const params = useParams();
 
-const TaskForm = ({ taskToUpdate, setTaskToUpdate, fetchTasks }: Props) => {
   const [task, setTask] = useState<ITask>({
     title: '',
     description: '',
     status: 'To Do',
   });
 
-  useEffect(() => {
-    if (taskToUpdate) setTask(taskToUpdate);
-  }, [taskToUpdate]);
+  const taskToUpdate = useMemo(() => {
+    return !!params.id;
+  }, [params]);
 
   const handleChange = (e: any) => {
     const { name, value } = e.target;
@@ -34,8 +32,6 @@ const TaskForm = ({ taskToUpdate, setTaskToUpdate, fetchTasks }: Props) => {
 
     taskToUpdate ? await patchApi(url, task) : await postApi(url, task);
 
-    fetchTasks();
-    setTaskToUpdate(null);
     setTask({
       title: '',
       description: '',
@@ -47,7 +43,14 @@ const TaskForm = ({ taskToUpdate, setTaskToUpdate, fetchTasks }: Props) => {
     <form onSubmit={(e) => handleSubmit(e)}>
       <Grid
         container
-        sx={{ flexDirection: 'column', alignItems: 'baseline', gap: 2, border: "1px solid #efefef", borderRadius: "5px", px: 4, py: 2 }}
+        sx={{
+          flexDirection: 'column',
+          alignItems: 'baseline',
+          gap: 2,
+          borderRadius: '5px',
+          px: 4,
+          py: 2,
+        }}
       >
         <TextField
           type="text"
@@ -55,6 +58,7 @@ const TaskForm = ({ taskToUpdate, setTaskToUpdate, fetchTasks }: Props) => {
           value={task.title}
           onChange={(e) => handleChange(e)}
           placeholder="Title"
+          sx={{width: "100%"}}
           required
         />
         <TextField
@@ -63,14 +67,19 @@ const TaskForm = ({ taskToUpdate, setTaskToUpdate, fetchTasks }: Props) => {
           name="description"
           value={task.description}
           onChange={handleChange}
+          sx={{width: "100%"}}
           placeholder="Description"
         />
-        <Select name="status" value={task.status} onChange={handleChange}>
+        <Select name="status" value={task.status} onChange={handleChange} sx={{width: "100%"}}>
           <MenuItem value="To Do">To Do</MenuItem>
           <MenuItem value="In Progress">In Progress</MenuItem>
           <MenuItem value="Done">Done</MenuItem>
         </Select>
-        <Button type="submit" variant='contained' color={taskToUpdate ? 'primary' : 'success'}>
+        <Button
+          type="submit"
+          variant="contained"
+          color={taskToUpdate ? 'primary' : 'success'}
+        >
           {taskToUpdate ? 'Update Task' : 'Create Task'}
         </Button>
       </Grid>
