@@ -2,8 +2,9 @@
 import React from 'react';
 import TaskList from './components/TaskList';
 
+import "../styles.css";
+
 const App = () => {
-  console.log('App Rendered');
   return (
     <div className="App">
       <h1>Task Manager</h1>

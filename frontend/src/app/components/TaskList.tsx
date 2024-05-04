@@ -4,6 +4,7 @@ import TaskForm from './TaskForm';
 import { ITask } from 'index';
 
 import { getApi, removeApi } from '../services/axios.service';
+import { Button, Grid, Typography } from '@mui/material';
 
 const TaskList = () => {
   const [tasks, setTasks] = useState<ITask[]>([]);
@@ -30,15 +31,57 @@ const TaskList = () => {
         setTaskToUpdate={setTaskToUpdate}
         fetchTasks={fetchTasks}
       />
-      {tasks.map((task) => (
-        <div key={`${task._id}`}>
-          <h3>{task.title}</h3>
-          <p>{task.description}</p>
-          <p>{task.status}</p>
-          <button onClick={() => setTaskToUpdate(task)}>Edit</button>
-          <button onClick={() => handleDelete(task._id)}>Delete</button>
-        </div>
-      ))}
+      <Grid
+        container
+        sx={{
+          my: 3,
+          flexDirection: 'row',
+          flexWrap: 'wrap',
+          alignContent: 'center',
+          gap: 2,
+        }}
+      >
+        {tasks.map((task) => (
+          <Grid item key={`${task._id}`} sx={{ border: '1px solid #efefef' }}>
+            <Grid
+              item
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                borderBottom: 'solid 1px #efefef',
+                p: '10px 14px',
+                alignItems: 'center',
+                gap: 2,
+              }}
+            >
+              <Typography variant="h5">{task.title}</Typography>
+              <Typography fontSize="12px" color="#ccc">
+                {task.status}
+              </Typography>
+            </Grid>
+            <Typography padding="10px 14px" margin="5px 0px">
+              {task.description}
+            </Typography>
+
+            <Grid
+              item
+              sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                gap: 2,
+                borderTop: '1px solid #efefef',
+              }}
+            >
+              <Button color="primary" onClick={() => setTaskToUpdate(task)}>
+                Edit
+              </Button>
+              <Button color="error" onClick={() => handleDelete(task._id)}>
+                Delete
+              </Button>
+            </Grid>
+          </Grid>
+        ))}
+      </Grid>
     </div>
   );
 };
