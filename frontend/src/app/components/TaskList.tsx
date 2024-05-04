@@ -1,6 +1,14 @@
 // apps/task-manager-frontend/src/app/components/TaskList.jsx
 import React, { useEffect, useState } from 'react';
-import { Alert, Button, Grid, Snackbar, Typography } from '@mui/material';
+import {
+  Alert,
+  Button,
+  Grid,
+  MenuItem,
+  Select,
+  Snackbar,
+  Typography,
+} from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 
 import { useNavigate } from 'react-router-dom';
@@ -12,10 +20,36 @@ import { getTaskColorCode } from '../constants/index';
 import { objectCopy } from '../../../../src/lib/utils/util';
 
 const columns: GridColDef[] = [
-  { field: 'id', headerName: 'ID', width: 150 },
-  { field: 'title', headerName: 'Title', width: 500 },
-  { field: 'description', headerName: 'Description', width: 400 },
-  { field: 'status', headerName: 'Status', width: 100 },
+  {
+    field: 'id',
+    headerName: '#',
+    width: 150,
+    filterable: false,
+    sortable: false,
+    hideable: false,
+    disableColumnMenu: true,
+    resizable: false,
+  },
+  {
+    field: 'title',
+    headerName: 'Title',
+    width: 500,
+    filterable: false,
+    disableColumnMenu: true,
+  },
+  {
+    field: 'description',
+    headerName: 'Description',
+    width: 400,
+    filterable: false,
+    disableColumnMenu: true,
+  },
+  {
+    field: 'status',
+    headerName: 'Status',
+    filterable: false,
+    disableColumnMenu: true,
+  },
 ];
 
 interface ITaskTable extends ITask {
@@ -27,14 +61,19 @@ const TaskList = () => {
 
   const [tasks, setTasks] = useState<ITaskTable[]>([]);
   const [tasksToUpdate, setTasksToUpdate] = useState<ITaskTable[]>([]);
+  const [filterBySelectedStatus, setFilterBySelectedStatus] = useState('');
 
   useEffect(() => {
     fetchTasks();
-  }, []);
+  }, [filterBySelectedStatus]);
 
   const fetchTasks = async () => {
     setTasksToUpdate([]);
-    const response = await getApi('/tasks');
+    const response = filterBySelectedStatus
+      ? await getApi(
+          `/tasks?filterBy=status&filterValue=${filterBySelectedStatus}`
+        )
+      : await getApi('/tasks');
     setTasks(
       response.data.map((task: ITask, index: number) => {
         return { ...task, id: index + 1 };
@@ -75,20 +114,48 @@ const TaskList = () => {
           Create new task
         </Button>
       </Grid>
-      <DataGrid
-        rows={tasks}
-        columns={columns}
-        onCellClick={(e) => {
-          handleCheckboxSelection(e.row);
-        }}
-        initialState={{
-          pagination: {
-            paginationModel: { page: 0, pageSize: 5 },
-          },
-        }}
-        pageSizeOptions={[5, 10]}
-        checkboxSelection
-      />
+
+      <Grid
+        container
+        sx={{ flexDirection: 'row', gap: 2, alignItems: 'center', mb: 3 }}
+      >
+        <Typography>Filter By: </Typography>
+        <Select
+          value={filterBySelectedStatus}
+          onChange={(e) => {
+            setFilterBySelectedStatus(e.target.value);
+          }}
+          renderValue={(selected) =>
+            !selected ? 'Select Status to filter' : selected
+          }
+          displayEmpty
+        >
+          <MenuItem value="">
+            <em>None</em>
+          </MenuItem>
+          <MenuItem value="To Do">To Do</MenuItem>
+          <MenuItem value="In Progress">In Progress</MenuItem>
+          <MenuItem value="Done">Done</MenuItem>
+        </Select>
+      </Grid>
+
+      <Grid item sx={{ height: '500px' }}>
+        <DataGrid
+          rows={tasks}
+          columns={columns}
+          onCellClick={(e) => {
+            handleCheckboxSelection(e.row);
+          }}
+          initialState={{
+            pagination: {
+              paginationModel: { page: 0, pageSize: 5 },
+            },
+          }}
+          pageSizeOptions={[5, 10]}
+          rowSelectionModel={tasksToUpdate as any}
+          checkboxSelection
+        />
+      </Grid>
 
       <Snackbar
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}

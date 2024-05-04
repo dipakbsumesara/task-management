@@ -12,7 +12,12 @@ export class TasksService {
     return createdTask.save();
   }
 
-  async findAll(): Promise<Task[]> {
+  async findAll(query: any): Promise<Task[]> {
+    if ('filterBy' in query && 'filterValue' in query) {
+      const { filterBy, filterValue } = query;
+      return this.taskModel.find({ [filterBy]: filterValue }).exec();
+    }
+
     return this.taskModel.find().exec();
   }
 

@@ -8,6 +8,7 @@ import {
   Delete,
   NotFoundException,
   BadRequestException,
+  Query,
 } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 
@@ -21,8 +22,8 @@ export class TasksController {
   }
 
   @Get()
-  findAll() {
-    return this.tasksService.findAll();
+  findAll(@Query() query: any) {
+    return this.tasksService.findAll(query);
   }
 
   @Get(':id')
