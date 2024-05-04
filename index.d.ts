@@ -7,4 +7,6 @@ export interface ITask {
   title: string;
   description: string;
   status: ITaskStatus;
+  createdAt?: Date;
+  updatedAt?: Date;
 }

@@ -20,7 +20,7 @@ import { getTaskColorCode } from '../constants/index';
 
 import useDebounce from '../hooks/useDebounce';
 
-import { objectCopy } from '../../../../src/lib/utils/util';
+import { objectCopy, formatDate } from '../../../../src/lib/utils/util';
 
 const columns: GridColDef[] = [
   {
@@ -36,14 +36,14 @@ const columns: GridColDef[] = [
   {
     field: 'title',
     headerName: 'Title',
-    width: 500,
+    width: 400,
     filterable: false,
     disableColumnMenu: true,
   },
   {
     field: 'description',
     headerName: 'Description',
-    width: 400,
+    width: 300,
     filterable: false,
     disableColumnMenu: true,
   },
@@ -52,11 +52,20 @@ const columns: GridColDef[] = [
     headerName: 'Status',
     filterable: false,
     disableColumnMenu: true,
+    width: 250,
+  },
+  {
+    field: 'lastUpdatedAt',
+    headerName: 'Last Updated At',
+    filterable: false,
+    disableColumnMenu: true,
+    width: 240,
   },
 ];
 
 interface ITaskTable extends ITask {
   id: string;
+  lastUpdatedAt: string;
 }
 
 const CreateNewTask = () => {
@@ -176,7 +185,8 @@ const TaskList = () => {
 
     setTasks(
       response.data.data.map((task: ITask, index: number) => {
-        return { ...task, id: index + 1 };
+        // @ts-ignore
+        return { ...task, lastUpdatedAt: formatDate(task?.updatedAt || ""), id: index + 1 };
       })
     );
   };
@@ -234,7 +244,6 @@ const TaskList = () => {
             },
           }}
           pageSizeOptions={[5, 10]}
-          rowSelectionModel={tasksToUpdate as any}
           checkboxSelection
         />
       </Grid>

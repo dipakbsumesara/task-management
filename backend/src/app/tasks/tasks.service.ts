@@ -9,6 +9,8 @@ export class TasksService {
 
   async create(createTaskDto: any): Promise<Task> {
     const createdTask = new this.taskModel(createTaskDto);
+    createdTask.createdAt = new Date();
+    createdTask.updatedAt = new Date();
     return createdTask.save();
   }
 
@@ -34,7 +36,11 @@ export class TasksService {
 
   async update(id: string, updateTaskDto: any): Promise<Task> {
     return this.taskModel
-      .findByIdAndUpdate(id, updateTaskDto, { new: true })
+      .findByIdAndUpdate(
+        id,
+        { ...updateTaskDto, updatedAt: new Date() },
+        { new: true }
+      )
       .exec();
   }
 

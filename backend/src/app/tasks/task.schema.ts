@@ -11,6 +11,12 @@ export class Task extends Document {
 
   @Prop({ required: true, enum: ['To Do', 'In Progress', 'Done'] })
   status: string;
+
+  @Prop()
+  createdAt: Date;
+
+  @Prop()
+  updatedAt: Date;
 }
 
 export const TaskSchema = SchemaFactory.createForClass(Task);
