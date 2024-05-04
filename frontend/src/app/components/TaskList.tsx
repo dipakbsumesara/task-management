@@ -18,6 +18,8 @@ import { ITask } from 'index';
 import { getApi, removeApi } from '../services/axios.service';
 import { getTaskColorCode } from '../constants/index';
 
+import useDebounce from '../hooks/useDebounce';
+
 import { objectCopy } from '../../../../src/lib/utils/util';
 
 const columns: GridColDef[] = [
@@ -82,9 +84,19 @@ const SearchBySection = ({ searchQuery, setSearchQuery }: SearchBySection) => {
   return (
     <Grid
       container
-      sx={{ flexDirection: 'row', gap: 2, alignItems: 'center', mb: 3, width: "fit-content" }}
+      sx={{
+        flexDirection: 'row',
+        gap: 2,
+        alignItems: 'center',
+        mb: 3,
+        width: 'fit-content',
+      }}
     >
-      <TextField onChange={(e) => setSearchQuery(e.target.value)} placeholder='Start typing to begin search' sx={{ width: "400px" }}></TextField>
+      <TextField
+        onChange={(e) => setSearchQuery(e.target.value)}
+        placeholder="Start typing to begin search"
+        sx={{ width: '400px' }}
+      ></TextField>
     </Grid>
   );
 };
@@ -101,7 +113,13 @@ const FilterBySection = ({
   return (
     <Grid
       container
-      sx={{ flexDirection: 'row', gap: 2, alignItems: 'center', mb: 3, width: "fit-content" }}
+      sx={{
+        flexDirection: 'row',
+        gap: 2,
+        alignItems: 'center',
+        mb: 3,
+        width: 'fit-content',
+      }}
     >
       <Typography>Filter By: </Typography>
       <Select
@@ -133,17 +151,29 @@ const TaskList = () => {
   const [filterBySelectedStatus, setFilterBySelectedStatus] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
 
+  const debouncedSearchTerm = useDebounce({ delay: 500, value: searchQuery });
+
   useEffect(() => {
     fetchTasks();
-  }, [filterBySelectedStatus]);
+  }, [filterBySelectedStatus, debouncedSearchTerm]);
 
   const fetchTasks = async () => {
     setTasksToUpdate([]);
-    const response = filterBySelectedStatus
-      ? await getApi(
-          `/tasks?filterBy=status&filterValue=${filterBySelectedStatus}`
-        )
-      : await getApi('/tasks');
+
+    let url = '/tasks';
+
+    if (filterBySelectedStatus) {
+      url = `${url}?filterBy=status&filterValue=${filterBySelectedStatus}`;
+    }
+
+    if (debouncedSearchTerm) {
+      url = `${url}${
+        filterBySelectedStatus ? '&' : '?'
+      }searchQuery=${debouncedSearchTerm}`;
+    }
+
+    const response = await getApi(url);
+
     setTasks(
       response.data.data.map((task: ITask, index: number) => {
         return { ...task, id: index + 1 };

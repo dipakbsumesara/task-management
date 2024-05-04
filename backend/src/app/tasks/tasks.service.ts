@@ -13,12 +13,19 @@ export class TasksService {
   }
 
   async findAll(query: any): Promise<Task[]> {
+    let findQuery = {};
+
     if ('filterBy' in query && 'filterValue' in query) {
       const { filterBy, filterValue } = query;
-      return this.taskModel.find({ [filterBy]: filterValue }).exec();
+      findQuery[filterBy] = filterValue;
     }
 
-    return this.taskModel.find().exec();
+    if ('searchQuery' in query) {
+      const searchRegex = new RegExp(query.searchQuery, 'i'); // Case-insensitive search
+      findQuery['$or'] = [{ title: searchRegex }, { description: searchRegex }];
+    }
+
+    return this.taskModel.find(findQuery).exec();
   }
 
   async findOne(id: string): Promise<Task> {
