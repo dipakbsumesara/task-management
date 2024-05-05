@@ -155,7 +155,13 @@ const FilterBySection = ({
 const TaskList = () => {
   const navigate = useNavigate();
 
+  const [pagination, setPagination] = useState({
+    skip: 0,
+    take: 10,
+  });
+
   const [tasks, setTasks] = useState<ITaskTable[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
   const [tasksToUpdate, setTasksToUpdate] = useState<ITaskTable[]>([]);
   const [filterBySelectedStatus, setFilterBySelectedStatus] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
@@ -164,29 +170,33 @@ const TaskList = () => {
 
   useEffect(() => {
     fetchTasks();
-  }, [filterBySelectedStatus, debouncedSearchTerm]);
+  }, [filterBySelectedStatus, debouncedSearchTerm, pagination]);
 
   const fetchTasks = async () => {
     setTasksToUpdate([]);
 
-    let url = '/tasks';
+    let url = `/tasks?skip=${pagination.skip}&take=${pagination.take}`;
 
     if (filterBySelectedStatus) {
-      url = `${url}?filterBy=status&filterValue=${filterBySelectedStatus}`;
+      url = `${url}&filterBy=status&filterValue=${filterBySelectedStatus}`;
     }
 
     if (debouncedSearchTerm) {
-      url = `${url}${
-        filterBySelectedStatus ? '&' : '?'
-      }searchQuery=${debouncedSearchTerm}`;
+      url = `${url}&searchQuery=${debouncedSearchTerm}`;
     }
 
     const response = await getApi(url);
 
+    setTotalCount(response.data.data.count);
+
     setTasks(
-      response.data.data.map((task: ITask, index: number) => {
-        // @ts-ignore
-        return { ...task, lastUpdatedAt: formatDate(task?.updatedAt || ""), id: index + 1 };
+      response.data.data.tasks.map((task: ITask, index: number) => {
+        return {
+          ...task,
+          // @ts-ignore
+          lastUpdatedAt: formatDate(task?.updatedAt || ''),
+          id: index + 1,
+        };
       })
     );
   };
@@ -238,13 +248,18 @@ const TaskList = () => {
           onCellClick={(e) => {
             handleCheckboxSelection(e.row);
           }}
+          checkboxSelection
+          pagination
+          rowCount={totalCount}
+          paginationMode="server"
           initialState={{
             pagination: {
-              paginationModel: { page: 0, pageSize: 5 },
+              paginationModel: { page: 0, pageSize: 10 },
             },
           }}
-          pageSizeOptions={[5, 10]}
-          checkboxSelection
+          onPaginationModelChange={(e) => {
+            setPagination({ ...pagination, skip: e.page * pagination.take });
+          }}
         />
       </Grid>
 

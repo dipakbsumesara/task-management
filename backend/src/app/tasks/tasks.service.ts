@@ -14,8 +14,10 @@ export class TasksService {
     return createdTask.save();
   }
 
-  async findAll(query: any): Promise<Task[]> {
+  async findAll(query: any): Promise<{ tasks: Task[]; count: number }> {
     let findQuery = {};
+    let skip = 0;
+    let take = 10;
 
     if ('filterBy' in query && 'filterValue' in query) {
       const { filterBy, filterValue } = query;
@@ -27,7 +29,25 @@ export class TasksService {
       findQuery['$or'] = [{ title: searchRegex }, { description: searchRegex }];
     }
 
-    return this.taskModel.find(findQuery).exec();
+    if ('skip' in query) {
+      skip = parseInt(query.skip, 10);
+      skip = isNaN(skip) || skip < 0 ? 0 : skip;
+    }
+
+    if ('take' in query) {
+      take = parseInt(query.take, 10);
+      take = isNaN(take) || take <= 0 ? 10 : take;
+    }
+
+    const tasks = await this.taskModel
+      .find(findQuery)
+      .skip(skip)
+      .limit(take)
+      .exec();
+
+    const count = await this.taskModel.countDocuments(findQuery);
+
+    return { tasks, count };
   }
 
   async findOne(id: string): Promise<Task> {
