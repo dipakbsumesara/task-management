@@ -5,6 +5,8 @@
   "scripts": {
     "build": "nx build",
     "test": "nx test",
+    "test:watch": "nx test --watch",
+    "test:coverage": "nx test --coverage",
     "serve:frontend": "nx serve frontend --configuration=development",
     "serve:backend": "nx serve backend --configuration=development",
     "serve:all": "nx serve backend && nx serve frontend"
@@ -91,6 +93,7 @@
     "react-refresh": "^0.10.0",
     "ts-jest": "^29.1.0",
     "ts-node": "10.9.1",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "~5.4.2",
     "vite": "~5.0.0",
     "vitest": "^1.3.1",

@@ -3,19 +3,24 @@ import { Document } from 'mongoose';
 
 @Schema()
 export class Task extends Document {
-  @Prop({ required: true })
+  @Prop({ type: String, required: true })
   title: string;
 
-  @Prop()
+  @Prop({ type: String })
   description: string;
 
-  @Prop({ required: true, enum: ['To Do', 'In Progress', 'Done'] })
+  @Prop({
+    type: String,
+    required: true,
+    enum: ['To Do', 'In Progress', 'Done'],
+    default: 'To Do',
+  })
   status: string;
 
-  @Prop()
+  @Prop({ type: Date, default: new Date() })
   createdAt: Date;
 
-  @Prop()
+  @Prop({ type: Date, default: new Date() })
   updatedAt: Date;
 }
 
