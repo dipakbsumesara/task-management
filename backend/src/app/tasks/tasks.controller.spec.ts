@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TasksController } from './tasks.controller';
 import { TasksService } from './tasks.service';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 
 // Define a mock TasksService
 class MockTasksService {
@@ -50,13 +51,13 @@ describe('TasksController', () => {
         },
       ],
     }).compile();
-  
+
     taskService = module.get<TasksService>(TasksService);
     // taskController = module.get<TasksController>(TasksController);
     taskController = new TasksController(taskService);
 
-    console.log("Task controller: ", taskController);
-    console.log("Task service: ", taskService);
+    console.log('Task controller: ', taskController);
+    console.log('Task service: ', taskService);
   });
 
   it('should be defined', () => {
@@ -87,6 +88,14 @@ describe('TasksController', () => {
       message: 'task fetched successfully!',
       data: { id: '1', title: 'Task 1' },
     });
+  });
+
+  it('should throw error for find one task', async () => {
+    const invalidId = 'non-existing-id';
+    // Expect the promise to reject with an error matching the NotFoundException
+    await expect(taskController.findOne(invalidId)).rejects.toThrow(
+      new NotFoundException('invalid id provided!')
+    );
   });
 
   it('should update a task', async () => {
@@ -127,6 +136,6 @@ describe('TasksController', () => {
     const deleteManyDto = { ids: [] };
     await expect(
       taskController.patchRemove(deleteManyDto)
-    ).rejects.toThrowError('ids are required field!');
+    ).rejects.toThrow(new BadRequestException('ids are required field!'));
   });
 });

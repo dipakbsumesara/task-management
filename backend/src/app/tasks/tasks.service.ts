@@ -65,7 +65,7 @@ export class TasksService {
   }
 
   async delete(id: string): Promise<Task> {
-    return this.taskModel.findByIdAndDelete(id).exec();
+    return this.taskModel.findByIdAndDelete(id);
   }
 
   async deleteMany(deleteManyDto: any): Promise<any> {
@@ -79,7 +79,6 @@ export class TasksService {
         _id: {
           $in: validIds,
         },
-      })
-      .exec();
+      });
   }
 }
