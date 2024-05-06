@@ -1,5 +1,12 @@
 {
-  "compilerOptions": {},
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@backend/*": ["backend/src/*"],
+      "@frontend/*": ["frontend/src/*"]
+      // Define other necessary path aliases
+    }
+  },
   "files": [],
   "include": [],
   "references": [
