@@ -37,29 +37,35 @@ class MockTasksService {
 }
 
 describe('TasksController', () => {
-  let controller: TasksController;
-  let tasksService: MockTasksService;
+  let taskController: TasksController;
+  let taskService: TasksService;
 
-  beforeEach(async () => {
-    const moduleRef: TestingModule = await Test.createTestingModule({
+  beforeAll(async () => {
+    const module: TestingModule = await Test.createTestingModule({
       controllers: [TasksController],
       providers: [
-        // Provide the mock TasksService
-        { provide: TasksService, useClass: MockTasksService },
+        {
+          provide: TasksService,
+          useClass: MockTasksService,
+        },
       ],
     }).compile();
+  
+    taskService = module.get<TasksService>(TasksService);
+    // taskController = module.get<TasksController>(TasksController);
+    taskController = new TasksController(taskService);
 
-    controller = moduleRef.get<TasksController>(TasksController);
-    tasksService = moduleRef.get<TasksService, MockTasksService>(TasksService);
+    console.log("Task controller: ", taskController);
+    console.log("Task service: ", taskService);
   });
 
   it('should be defined', () => {
-    expect(controller).toBeDefined();
+    expect(taskController).toBeDefined();
   });
 
   it('should create a task', async () => {
     const taskDto = { title: 'New Task' };
-    const createdTask = await controller.create(taskDto);
+    const createdTask = await taskController.create(taskDto);
     console.log({ createdTask });
     expect(createdTask).toEqual({
       status: 'success',
@@ -69,13 +75,13 @@ describe('TasksController', () => {
   });
 
   it('should find all tasks', async () => {
-    const tasks = await controller.findAll({});
+    const tasks = await taskController.findAll({});
     expect(tasks.data).toHaveLength(2);
   });
 
   it('should find one task', async () => {
     const taskId = '1';
-    const task = await controller.findOne(taskId);
+    const task = await taskController.findOne(taskId);
     expect(task).toEqual({
       status: 'success',
       message: 'task fetched successfully!',
@@ -86,7 +92,7 @@ describe('TasksController', () => {
   it('should update a task', async () => {
     const taskId = '1';
     const updateDto = { title: 'Updated Task' };
-    const updatedTask = await controller.update(taskId, updateDto);
+    const updatedTask = await taskController.update(taskId, updateDto);
     expect(updatedTask).toEqual({
       status: 'success',
       message: 'task updated successfully',
@@ -96,7 +102,7 @@ describe('TasksController', () => {
 
   it('should delete a task', async () => {
     const taskId = '1';
-    const deletedTask = await controller.remove(taskId);
+    const deletedTask = await taskController.remove(taskId);
     expect(deletedTask).toEqual({
       status: 'success',
       message: 'task removed successfully',
@@ -106,7 +112,7 @@ describe('TasksController', () => {
 
   it('should delete multiple tasks', async () => {
     const deleteManyDto = { ids: ['1', '2'] };
-    const deletedTasks = await controller.patchRemove(deleteManyDto);
+    const deletedTasks = await taskController.patchRemove(deleteManyDto);
     expect(deletedTasks).toEqual({
       data: [
         { deleted: true, id: '1' },
@@ -119,8 +125,8 @@ describe('TasksController', () => {
 
   it('should throw BadRequestException if no ids provided for patchRemove', async () => {
     const deleteManyDto = { ids: [] };
-    await expect(controller.patchRemove(deleteManyDto)).rejects.toThrowError(
-      'ids are required field!'
-    );
+    await expect(
+      taskController.patchRemove(deleteManyDto)
+    ).rejects.toThrowError('ids are required field!');
   });
 });

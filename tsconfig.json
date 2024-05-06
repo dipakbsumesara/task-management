@@ -3,7 +3,8 @@
     "baseUrl": ".",
     "paths": {
       "@backend/*": ["backend/src/*"],
-      "@frontend/*": ["frontend/src/*"]
+      "@frontend/*": ["frontend/src/*"],
+      "@lib/*": ["src/lib/*"]
       // Define other necessary path aliases
     }
   },

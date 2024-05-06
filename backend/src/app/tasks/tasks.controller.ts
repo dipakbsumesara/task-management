@@ -10,13 +10,13 @@ import {
   BadRequestException,
   Query,
 } from '@nestjs/common';
-import { TasksService } from './tasks.service';
 
-import { sendApiResponse } from '../../../../src/lib/utils/util';
+import { TasksService } from '@backend/app/tasks/tasks.service';
+import { sendApiResponse } from '@lib/utils/util';
 
 @Controller('tasks')
 export class TasksController {
-  constructor(private readonly tasksService: TasksService) {}
+  constructor(private tasksService: TasksService) {}
 
   @Post()
   async create(@Body() createTaskDto: any) {

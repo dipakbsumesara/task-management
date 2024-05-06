@@ -16,11 +16,15 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
-    include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}', 'backend/src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+    include: [
+      'src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
+      'backend/src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
+    ],
     reporters: ['default'],
     coverage: { reportsDirectory: './coverage/task-manager', provider: 'v8' },
     alias: {
-      "@backend": resolve(__dirname, "backend/src")
-    }
+      '@backend': resolve(__dirname, 'backend/src'),
+      '@lib': resolve(__dirname, 'src/lib'),
+    },
   },
 });

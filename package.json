@@ -4,10 +4,10 @@
   "license": "MIT",
   "scripts": {
     "build": "nx build",
-    "test": "nx test --clearCache",
+    "test": "jest --clearCache && nx test",
     "test:clearCache": "jest --clearCache",
     "test:watch": "nx test --watch",
-    "test:coverage": "nx test --coverage",
+    "test:coverage": "jest --clearCache && jest --coverage --debug",
     "serve:frontend": "nx serve frontend --configuration=development",
     "serve:backend": "nx serve backend --configuration=development",
     "serve:all": "nx serve backend && nx serve frontend"
