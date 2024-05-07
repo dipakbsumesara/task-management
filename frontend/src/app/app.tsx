@@ -1,53 +1,39 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import styles from './app.module.css';
+// apps/task-manager-frontend/src/app/app.jsx
+import React, { useMemo } from 'react';
+import '../styles.css';
+import RenderRoutes from './helpers/routes';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { Button } from '@mui/material';
 
-import NxWelcome from './nx-welcome';
+const App = () => {
+  const isLoggedIn = useMemo(() => {
+    return !!localStorage.getItem('access-token');
+  }, []);
 
-import { Route, Routes, Link } from 'react-router-dom';
+  const handleLogout = () => {
+    localStorage.removeItem('access-token');
+    location.href = "/";
+  };
 
-export function App() {
   return (
-    <div>
-      <NxWelcome title="frontend" />
-
-      {/* START: routes */}
-      {/* These routes and navigation have been generated for you */}
-      {/* Feel free to move and update them to fit your needs */}
-      <br />
-      <hr />
-      <br />
-      <div role="navigation">
-        <ul>
-          <li>
-            <Link to="/">Home</Link>
-          </li>
-          <li>
-            <Link to="/page-2">Page 2</Link>
-          </li>
-        </ul>
-      </div>
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <div>
-              This is the generated root route.{' '}
-              <Link to="/page-2">Click here for page 2.</Link>
-            </div>
-          }
-        />
-        <Route
-          path="/page-2"
-          element={
-            <div>
-              <Link to="/">Click here to go back to root page.</Link>
-            </div>
-          }
-        />
-      </Routes>
-      {/* END: routes */}
-    </div>
+    <>
+      <ToastContainer />
+      {isLoggedIn ? (
+        <Button
+          variant="contained"
+          color="error"
+          sx={{ float: 'right', ml: 2 }}
+          onClick={handleLogout}
+        >
+          Logout
+        </Button>
+      ) : (
+        <></>
+      )}
+      <RenderRoutes />
+    </>
   );
-}
+};
 
 export default App;
