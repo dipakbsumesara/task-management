@@ -4,7 +4,8 @@
     "paths": {
       "@backend/*": ["backend/src/*"],
       "@frontend/*": ["frontend/src/*"],
-      "@lib/*": ["src/lib/*"]
+      "@lib/*": ["src/lib/*"],
+      "@index": ["./index.d.ts"]
       // Define other necessary path aliases
     }
   },
