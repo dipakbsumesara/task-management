@@ -13,8 +13,12 @@ import {
 } from '@mui/material';
 import { postApi } from '../services/axios.service';
 
-const Login = () => {
-  const [loginPayload, setLoginPayload] = useState({ email: '', password: '' });
+const Register = () => {
+  const [registerPayload, setRegisterPayload] = useState({
+    name: '',
+    email: '',
+    password: '',
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const navigate = useNavigate();
@@ -23,7 +27,7 @@ const Login = () => {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { id, value } = e.target;
-    setLoginPayload((prev) => ({
+    setRegisterPayload((prev) => ({
       ...prev,
       [id]: value,
     }));
@@ -33,10 +37,10 @@ const Login = () => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    toast.info('logging in...', { toastId: '1' });
+    toast.info('registering...', { toastId: '1' });
 
     try {
-      const response = await postApi('/auth/login', loginPayload);
+      const response = await postApi('/auth/register', registerPayload);
       setIsSubmitting(false);
       localStorage.setItem('access-token', response.data.data.access_token);
       navigate('/');
@@ -53,7 +57,7 @@ const Login = () => {
   return (
     <Grid container sx={{ justifyContent: 'center' }}>
       <Typography variant="h3" textAlign="center" width="100%">
-        Login
+        Register
       </Typography>
       <form onSubmit={(e) => handleSubmit(e)} autoComplete="off">
         <Grid
@@ -69,6 +73,11 @@ const Login = () => {
           }}
         >
           <TextField
+            id="name"
+            placeholder="Name"
+            onChange={(e) => handleInputChange(e)}
+          ></TextField>
+          <TextField
             id="email"
             placeholder="email"
             onChange={(e) => handleInputChange(e)}
@@ -83,7 +92,7 @@ const Login = () => {
             variant="contained"
             color="primary"
             type="submit"
-            disabled={!loginPayload.email || !loginPayload.password}
+            disabled={!registerPayload.email || !registerPayload.password}
             {...(isSubmitting
               ? {
                   endIcon: (
@@ -92,24 +101,24 @@ const Login = () => {
                 }
               : {})}
           >
-            Login
+            Register
           </Button>
           <Grid
             container
             sx={{ alignItems: 'center', justifyContent: 'center' }}
           >
-            <Typography>Don't have an account?</Typography>
+            <Typography>Already have an account?</Typography>
             <Button
               variant="text"
               color="info"
-              onClick={() => navigate('/register')}
+              onClick={() => navigate('/login')}
               sx={{
                 '&:hover': {
                   background: 'none',
                 },
               }}
             >
-              Register
+              Login
             </Button>
           </Grid>
         </Grid>
@@ -118,4 +127,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Register;
