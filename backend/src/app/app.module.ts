@@ -8,7 +8,7 @@ import { TasksModule } from './tasks/tasks.module';
 @Module({
   imports: [
     MongooseModule.forRoot(
-      'mongodb+srv://dipaksumesara:Dipak1911@cluster0.j3rxsrb.mongodb.net/?retryWrites=true&w=majority'
+      process.env.MONGO_CONNECTION_STRING
     ),
     TasksModule,
   ],

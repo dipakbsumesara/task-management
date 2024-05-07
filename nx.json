@@ -64,17 +64,5 @@
         "linter": "eslint"
       }
     }
-  },
-  "npmScope": "yourworkspacename",
-  "affected": {
-    "defaultBase": "main"
-  },
-  "projects": {
-    "backend": {
-      "tags": []
-    },
-    "frontend": {
-      "tags": []
-    }
   }
 }
