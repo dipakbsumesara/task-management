@@ -19,11 +19,13 @@ export default defineConfig({
     include: [
       'src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
       'backend/src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
+      'frontend/src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
     ],
     reporters: ['default'],
     coverage: { reportsDirectory: './coverage/task-manager', provider: 'v8' },
     alias: {
       '@backend': resolve(__dirname, 'backend/src'),
+      '@frontend': resolve(__dirname, 'frontend/src'),
       '@lib': resolve(__dirname, 'src/lib'),
     },
   },

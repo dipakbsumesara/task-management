@@ -15,5 +15,6 @@ export default async () => ({
     "<rootDir>/backend-e2e/src/support/global-teardown.ts",
     "<rootDir>/backend-e2e/src/support/test-setup.ts",
     "<rootDir>/backend/src/main.ts",
+    "<rootDir>/frontend/src/app/helpers/routes.tsx",
   ],
 });
