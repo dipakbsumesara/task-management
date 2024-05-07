@@ -2,12 +2,13 @@
 import React from 'react';
 import '../styles.css';
 import RenderRoutes from './helpers/routes';
-import { Typography } from '@mui/material';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const App = () => {
   return (
     <>
-      <Typography variant="h4" textAlign="center">Task Management</Typography>
+      <ToastContainer />
       <RenderRoutes />
     </>
   );

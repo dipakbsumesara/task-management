@@ -1,5 +1,12 @@
 // apps/api/src/app/auth/auth.controller.ts
-import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  HttpCode,
+  HttpStatus,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { sendApiResponse } from '@lib/utils/util';
 
@@ -25,10 +32,7 @@ export class AuthController {
       body.password
     );
     if (!loginResponse) {
-      return {
-        message: 'User not found or password incorrect',
-        statusCode: HttpStatus.UNAUTHORIZED,
-      };
+      throw new UnauthorizedException('invalid credentials provided');
     }
     return sendApiResponse('logged in successfully', loginResponse);
   }
