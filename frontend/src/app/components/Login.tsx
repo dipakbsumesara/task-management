@@ -1,6 +1,12 @@
-import React, { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Grid, Typography, useMediaQuery, useTheme } from '@mui/material';
+import React, { useMemo } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import {
+  Button,
+  Grid,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from '@mui/material';
 import { postApi } from '../services/axios.service';
 import FormBuilder from '../helpers/FormBuilder';
 import { FormConfig } from 'index';
@@ -13,7 +19,6 @@ interface LoginPayload {
 
 const Login = () => {
   const navigate = useNavigate();
-
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -50,9 +55,10 @@ const Login = () => {
           LOCAL_STORAGE_KEYS.ACCESS_TOKEN,
           response.data.access_token
         );
+        navigate("/");
       }
     } catch (error) {
-      throw error;
+      console.log(error);
     }
   };
 
@@ -89,6 +95,23 @@ const Login = () => {
             label: 'Login',
           }}
         />
+
+        <Grid container sx={{ alignItems: 'center', justifyContent: 'center' }}>
+          <Typography>Don't have an account?</Typography>
+
+          <Link to="/register">
+            <Button
+              variant="text"
+              sx={{
+                '&:hover': {
+                  background: 'none',
+                },
+              }}
+            >
+              Register
+            </Button>
+          </Link>
+        </Grid>
       </Grid>
     </Grid>
   );
