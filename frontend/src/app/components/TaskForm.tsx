@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import {
   Alert,
+  Breadcrumbs,
   Button,
   Grid,
   MenuItem,
@@ -15,7 +16,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 
 import { getApi, patchApi, postApi } from '../services/axios.service';
 
-import { ITask } from '../../../../index';
+import { ICustomBreadcrump, ITask } from '../../../../index';
+import CustomBreadcrumps from '../UI/CustomBreadcrumps';
 
 const TaskForm = () => {
   const params = useParams();
@@ -65,65 +67,79 @@ const TaskForm = () => {
     }
   };
 
+  const breadcrumps = useMemo(() => {
+    const breadcrumps: ICustomBreadcrump[] = [];
+
+    breadcrumps.push({ label: 'Task list', href: '/' });
+    breadcrumps.push({
+      label: task && taskToUpdate ? task.title : 'Create task',
+    });
+
+    return breadcrumps;
+  }, [taskToUpdate, task]);
+
   return (
-    <form onSubmit={(e) => handleSubmit(e)}>
-      <Grid
-        container
-        sx={{
-          flexDirection: 'column',
-          alignItems: 'baseline',
-          gap: 2,
-          borderRadius: '5px',
-          px: 4,
-          py: 2,
-        }}
-      >
-        <TextField
-          type="text"
-          name="title"
-          value={task.title}
-          onChange={(e) => handleChange(e)}
-          placeholder="Title"
-          sx={{ width: '100%' }}
-          required
-        />
-        <TextField
-          multiline={true}
-          rows={3}
-          name="description"
-          value={task.description}
-          onChange={handleChange}
-          sx={{ width: '100%' }}
-          placeholder="Description"
-        />
-        <Select
-          name="status"
-          value={task.status}
-          onChange={handleChange}
-          sx={{ width: '100%' }}
+    <Grid>
+      <CustomBreadcrumps breadcrumps={breadcrumps} />
+      <form onSubmit={(e) => handleSubmit(e)}>
+        <Grid
+          container
+          sx={{
+            flexDirection: 'column',
+            alignItems: 'baseline',
+            gap: 2,
+            borderRadius: '5px',
+            px: 4,
+            py: 2,
+          }}
         >
-          <MenuItem value="To Do">To Do</MenuItem>
-          <MenuItem value="In Progress">In Progress</MenuItem>
-          <MenuItem value="Done">Done</MenuItem>
-        </Select>
-        <Button
-          type="submit"
-          variant="contained"
-          color={taskToUpdate ? 'primary' : 'success'}
+          <TextField
+            type="text"
+            name="title"
+            value={task.title}
+            onChange={(e) => handleChange(e)}
+            placeholder="Title"
+            sx={{ width: '100%' }}
+            required
+          />
+          <TextField
+            multiline={true}
+            rows={3}
+            name="description"
+            value={task.description}
+            onChange={handleChange}
+            sx={{ width: '100%' }}
+            placeholder="Description"
+          />
+          <Select
+            name="status"
+            value={task.status}
+            onChange={handleChange}
+            sx={{ width: '100%' }}
+          >
+            <MenuItem value="To Do">To Do</MenuItem>
+            <MenuItem value="In Progress">In Progress</MenuItem>
+            <MenuItem value="Done">Done</MenuItem>
+          </Select>
+          <Button
+            type="submit"
+            variant="contained"
+            color={taskToUpdate ? 'primary' : 'success'}
+          >
+            {taskToUpdate ? 'Update Task' : 'Create Task'}
+          </Button>
+        </Grid>
+        <Snackbar
+          anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+          open={!!apiResponseMessage}
+          onClose={() => {}}
         >
-          {taskToUpdate ? 'Update Task' : 'Create Task'}
-        </Button>
-      </Grid>
-      <Snackbar
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-        open={!!apiResponseMessage}
-        onClose={() => {}}
-      >
-        <Alert severity="success">
-          <Typography sx={{ mr: 3 }}>{apiResponseMessage}</Typography>
-        </Alert>
-      </Snackbar>
-    </form>
+          <Alert severity="success">
+            <Typography sx={{ mr: 3 }}>{apiResponseMessage}</Typography>
+          </Alert>
+        </Snackbar>
+      </form>
+    </Grid>
   );
 };
 

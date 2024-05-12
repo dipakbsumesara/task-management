@@ -17,3 +17,9 @@ export interface IUser {
   email: string;
   password: string;
 }
+
+export interface ICustomBreadcrump {
+  label: string;
+  href?: string;
+  color?: string;
+}
