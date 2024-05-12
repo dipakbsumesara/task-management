@@ -1,4 +1,6 @@
 import axios from 'axios';
+import { LOCAL_STORAGE_KEYS } from '../helpers/constants';
+import { toast } from 'react-toastify';
 
 const _axios = axios.create({
   baseURL: process.env.REACT_APP_API_URL,
@@ -6,7 +8,7 @@ const _axios = axios.create({
 
 _axios.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('access-token'); // Retrieve the token from storage
+    const token = localStorage.getItem(LOCAL_STORAGE_KEYS.ACCESS_TOKEN); // Retrieve the token from storage
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`; // Append token to headers
     }
@@ -20,27 +22,8 @@ _axios.interceptors.request.use(
 _axios.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Handle errors
-    if (error.response) {
-      // The request was made and the server responded with a status code
-      // that falls out of the range of 2xx
-      console.error('Error status', error.response.status);
-      console.error('Error data', error.response.data);
-      console.error('Error headers', error.response.headers);
-    } else if (error.request) {
-      // The request was made but no response was received
-      console.error('Error request', error.request);
-    } else {
-      // Something happened in setting up the request that triggered an error
-      console.error('Error message', error.message);
-    }
-
-    // If you want to handle errors based on their status code, you can do it here
-    if (error?.response?.status === 401) {
-      // Redirect to login or do something else
-      console.log('Unauthorized, redirecting...');
-    }
-
+    const errorMessage = error?.response?.data?.message || "something went wrong";
+    toast.error(errorMessage);
     return Promise.reject(error);
   }
 );
@@ -55,7 +38,7 @@ export const getApi = async (url: string) => {
 
 export const postApi = async (url: string, payload: any) => {
   try {
-    return await _axios.post(url, payload);
+    return await _axios.post(url, payload).then((resp) => resp.data);
   } catch (error) {
     throw error;
   }

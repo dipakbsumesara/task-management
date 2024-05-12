@@ -1,4 +1,3 @@
-// apps/task-manager-frontend/src/app/components/TaskList.jsx
 import React, { useEffect, useState } from 'react';
 import {
   Alert,
@@ -9,24 +8,27 @@ import {
   Snackbar,
   TextField,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-
 import { useNavigate } from 'react-router-dom';
-
 import { ITask } from 'index';
 import { getApi, removeApi } from '../services/axios.service';
 import { getTaskColorCode } from '../constants/index';
-
 import useDebounce from '../hooks/useDebounce';
-
 import { objectCopy, formatDate } from '../../../../src/lib/utils/util';
+
+interface ITaskTable extends ITask {
+  id: string;
+  lastUpdatedAt: string;
+}
 
 const columns: GridColDef[] = [
   {
     field: 'id',
     headerName: '#',
-    width: 150,
+    width: 90,
     filterable: false,
     sortable: false,
     hideable: false,
@@ -36,14 +38,16 @@ const columns: GridColDef[] = [
   {
     field: 'title',
     headerName: 'Title',
-    width: 400,
+    width: 200,
+    flex: 1, // Use flex for responsive widths
     filterable: false,
     disableColumnMenu: true,
   },
   {
     field: 'description',
     headerName: 'Description',
-    width: 300,
+    width: 150,
+    flex: 1.5, // Adjust flex accordingly
     filterable: false,
     disableColumnMenu: true,
   },
@@ -52,26 +56,23 @@ const columns: GridColDef[] = [
     headerName: 'Status',
     filterable: false,
     disableColumnMenu: true,
-    width: 250,
+    width: 120,
+    flex: 1, // Adjust flex accordingly
   },
   {
     field: 'lastUpdatedAt',
     headerName: 'Last Updated At',
     filterable: false,
     disableColumnMenu: true,
-    width: 240,
+    width: 150,
+    flex: 1, // Adjust flex accordingly
   },
 ];
-
-interface ITaskTable extends ITask {
-  id: string;
-  lastUpdatedAt: string;
-}
 
 const CreateNewTask = () => {
   const navigate = useNavigate();
   return (
-    <Grid item sx={{ width: '100%', textAlign: 'right' }}>
+    <Grid item xs={12} sm={6} md={4} lg={3} sx={{ textAlign: 'right' }}>
       <Button
         color="primary"
         variant="contained"
@@ -90,6 +91,9 @@ type SearchBySection = {
 };
 
 const SearchBySection = ({ searchQuery, setSearchQuery }: SearchBySection) => {
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
+
   return (
     <Grid
       container
@@ -98,14 +102,14 @@ const SearchBySection = ({ searchQuery, setSearchQuery }: SearchBySection) => {
         gap: 2,
         alignItems: 'center',
         mb: 3,
-        width: 'fit-content',
+        width: isSmallScreen ? '100%' : 'auto',
       }}
     >
       <TextField
         onChange={(e) => setSearchQuery(e.target.value)}
         placeholder="Start typing to begin search"
-        sx={{ width: '400px' }}
-      ></TextField>
+        sx={{ width: isSmallScreen ? '100%' : '400px' }}
+      />
     </Grid>
   );
 };
@@ -119,6 +123,9 @@ const FilterBySection = ({
   filterBySelectedStatus,
   setFilterBySelectedStatus,
 }: FilterBySection) => {
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
+
   return (
     <Grid
       container
@@ -127,19 +134,18 @@ const FilterBySection = ({
         gap: 2,
         alignItems: 'center',
         mb: 3,
-        width: 'fit-content',
+        width: isSmallScreen ? '100%' : 'auto',
       }}
     >
       <Typography>Filter By: </Typography>
       <Select
         value={filterBySelectedStatus}
-        onChange={(e) => {
-          setFilterBySelectedStatus(e.target.value);
-        }}
+        onChange={(e) => setFilterBySelectedStatus(e.target.value)}
         renderValue={(selected) =>
           !selected ? 'Select Status to filter' : selected
         }
         displayEmpty
+        sx={{ width: isSmallScreen ? '100%' : '200px' }}
       >
         <MenuItem value="">
           <em>None</em>
@@ -154,19 +160,18 @@ const FilterBySection = ({
 
 const TaskList = () => {
   const navigate = useNavigate();
-
   const [pagination, setPagination] = useState({
     skip: 0,
     take: 10,
   });
-
   const [tasks, setTasks] = useState<ITaskTable[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [tasksToUpdate, setTasksToUpdate] = useState<ITaskTable[]>([]);
   const [filterBySelectedStatus, setFilterBySelectedStatus] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
-
   const debouncedSearchTerm = useDebounce({ delay: 500, value: searchQuery });
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
   useEffect(() => {
     fetchTasks();
@@ -176,28 +181,22 @@ const TaskList = () => {
     setTasksToUpdate([]);
 
     let url = `/tasks?skip=${pagination.skip}&take=${pagination.take}`;
-
     if (filterBySelectedStatus) {
-      url = `${url}&filterBy=status&filterValue=${filterBySelectedStatus}`;
+      url += `&filterBy=status&filterValue=${filterBySelectedStatus}`;
     }
-
     if (debouncedSearchTerm) {
-      url = `${url}&searchQuery=${debouncedSearchTerm}`;
+      url += `&searchQuery=${debouncedSearchTerm}`;
     }
 
     const response = await getApi(url);
-
     setTotalCount(response.data.data.count);
-
     setTasks(
-      response.data.data.tasks.map((task: ITask, index: number) => {
-        return {
-          ...task,
-          // @ts-ignore
-          lastUpdatedAt: formatDate(task?.updatedAt || ''),
-          id: index + 1,
-        };
-      })
+      response.data.data.tasks.map((task: ITask, index: number) => ({
+        ...task,
+        // @ts-ignore
+        lastUpdatedAt: formatDate(task?.updatedAt || ''),
+        id: index + 1,
+      }))
     );
   };
 
@@ -208,7 +207,6 @@ const TaskList = () => {
 
   const handleCheckboxSelection = (selected: ITaskTable) => {
     const updatedTasksToUpdate: ITaskTable[] = objectCopy(tasksToUpdate);
-
     const alreadyExistsIndex = updatedTasksToUpdate.findIndex(
       (task) => task.id === selected.id
     );
@@ -228,20 +226,22 @@ const TaskList = () => {
 
       <Grid
         container
-        sx={{ flexDirection: 'row', justifyContent: 'space-between' }}
+        sx={{
+          flexDirection: isSmallScreen ? 'column' : 'row',
+          justifyContent: 'space-between',
+        }}
       >
         <SearchBySection
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
         />
-
         <FilterBySection
           filterBySelectedStatus={filterBySelectedStatus}
           setFilterBySelectedStatus={setFilterBySelectedStatus}
         />
       </Grid>
 
-      <Grid item sx={{ height: '500px' }}>
+      <Grid item xs={12} sx={{ height: '500px', width: '100%' }}>
         <DataGrid
           rows={tasks}
           columns={columns}
@@ -266,7 +266,6 @@ const TaskList = () => {
       <Snackbar
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
         open={tasksToUpdate.length > 0}
-        onClose={() => {}}
       >
         <Alert
           severity="info"

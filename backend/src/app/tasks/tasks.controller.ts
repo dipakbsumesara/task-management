@@ -10,7 +10,12 @@ import {
   BadRequestException,
   Query,
   UseGuards,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
+
+import { CreateTaskDto } from "@lib/DTO/createTask.dto";
+import { UpdateTaskDto } from "@lib/DTO/updateTask.dto";
 
 import { TasksService } from '@backend/app/tasks/tasks.service';
 import { sendApiResponse } from '@lib/utils/util';
@@ -22,7 +27,8 @@ export class TasksController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  async create(@Body() createTaskDto: any) {
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async create(@Body() createTaskDto: CreateTaskDto) {
     const task = await this.tasksService.create(createTaskDto);
     return sendApiResponse('task created successfully!', task);
   }
@@ -48,7 +54,8 @@ export class TasksController {
 
   @UseGuards(JwtAuthGuard)
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() updateTaskDto: any) {
+  @UsePipes(new ValidationPipe({ skipMissingProperties: true }))
+  async update(@Param('id') id: string, @Body() updateTaskDto: UpdateTaskDto) {
     const updatedTask = await this.tasksService.update(id, updateTaskDto);
     return sendApiResponse('task updated successfully', updatedTask);
   }
