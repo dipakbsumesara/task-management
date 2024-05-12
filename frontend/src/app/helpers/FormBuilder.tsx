@@ -13,41 +13,9 @@ import {
   InputLabel,
   Select,
   FormHelperText,
+  Button,
 } from '@mui/material';
-
-// Define the type for individual field options (used in select fields)
-interface IOption {
-  value: string | number;
-  label: string;
-}
-
-// Define the type for a single form field configuration
-interface IField {
-  id: string;
-  name: string;
-  label: string;
-  type: 'text' | 'select';
-  placeholder?: string;
-  options?: IOption[];
-  validation: Record<string, any>;
-}
-
-// Define the type for the form configuration prop
-type FormConfig = IField[];
-
-// Define the props for the FormBuilder component
-interface IFormBuilderProps {
-  config: FormConfig;
-  onSubmit: (data: FieldValues) => void;
-}
-
-// Define the props for the FormField component
-interface IFormFieldProps {
-  field: IField;
-  register: UseFormRegister<FieldValues>;
-  control: Control<FieldValues>;
-  errors: Record<string, any>;
-}
+import { IFormBuilderProps, IFormFieldProps } from 'index';
 
 // The FormField component responsible for rendering each field
 const FormField: React.FC<IFormFieldProps> = ({
@@ -56,9 +24,18 @@ const FormField: React.FC<IFormFieldProps> = ({
   control,
   errors,
 }) => {
-  const { id, name, label, type, placeholder, options, validation } = field;
+  const {
+    id,
+    name,
+    label,
+    inputType,
+    fieldType,
+    placeholder,
+    options,
+    validation,
+  } = field;
 
-  switch (type) {
+  switch (inputType) {
     case 'text':
       return (
         <TextField
@@ -70,6 +47,7 @@ const FormField: React.FC<IFormFieldProps> = ({
           placeholder={placeholder}
           error={!!errors[name]}
           helperText={errors[name]?.message}
+          type={fieldType || "text"}
           {...register(name, validation)}
         />
       );
@@ -104,7 +82,11 @@ const FormField: React.FC<IFormFieldProps> = ({
 };
 
 // The main FormBuilder component
-const FormBuilder: React.FC<IFormBuilderProps> = ({ config, onSubmit }) => {
+const FormBuilder: React.FC<IFormBuilderProps> = ({
+  config,
+  onSubmit,
+  submitButtonProps,
+}) => {
   const {
     register,
     handleSubmit,
@@ -113,7 +95,7 @@ const FormBuilder: React.FC<IFormBuilderProps> = ({ config, onSubmit }) => {
   } = useForm();
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate>
+    <form onSubmit={handleSubmit(onSubmit)} noValidate autoComplete="off">
       {config.map((field, index) => (
         <FormField
           key={index}
@@ -123,9 +105,14 @@ const FormBuilder: React.FC<IFormBuilderProps> = ({ config, onSubmit }) => {
           errors={errors}
         />
       ))}
-      <button type="submit" style={{ marginTop: 20 }}>
-        Submit
-      </button>
+      <Button
+        variant={submitButtonProps?.variant || 'contained'}
+        type={submitButtonProps?.type || 'submit'}
+        color={submitButtonProps?.color || 'primary'}
+        sx={{ mt: 2 }}
+      >
+        {submitButtonProps?.label || 'Submit'}
+      </Button>
     </form>
   );
 };

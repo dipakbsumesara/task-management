@@ -1,127 +1,95 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import {
-  Button,
-  Grid,
-  TextField,
-  Typography,
-  CircularProgress,
-  useMediaQuery,
-  useTheme,
-} from '@mui/material';
+import { Grid, Typography, useMediaQuery, useTheme } from '@mui/material';
 import { postApi } from '../services/axios.service';
+import FormBuilder from '../helpers/FormBuilder';
+import { FormConfig } from 'index';
+import { LOCAL_STORAGE_KEYS } from '../helpers/constants';
+
+interface LoginPayload {
+  email: string;
+  password: string;
+}
 
 const Login = () => {
-  const [loginPayload, setLoginPayload] = useState({ email: '', password: '' });
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { id, value } = e.target;
-    setLoginPayload((prev) => ({
-      ...prev,
-      [id]: value,
-    }));
-  };
+  // Define the configuration for the form
+  const formConfig: FormConfig = useMemo(
+    () => [
+      {
+        id: 'email',
+        name: 'email',
+        label: 'Email',
+        inputType: 'text',
+        fielType: 'text',
+        placeholder: 'Enter your email',
+        validation: { required: 'Email id is required field' },
+      },
+      {
+        id: 'password',
+        name: 'password',
+        label: 'Password',
+        inputType: 'text',
+        fieldType: 'password',
+        placeholder: 'Enter your password',
+        validation: { required: 'Password is required' },
+      },
+    ],
+    []
+  );
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    toast.info('Logging in...', { toastId: '1' });
-
+  const handleSubmit = async (payload: LoginPayload) => {
     try {
-      const response = await postApi('/auth/login', loginPayload);
-      setIsSubmitting(false);
-      localStorage.setItem('access-token', response.data.data.access_token);
-      navigate('/');
-    } catch (error: any) {
-      setIsSubmitting(false);
-      if (error?.response?.data?.message) {
-        toast.error(error.response.data.message, { updateId: '1' });
-        return;
+      const response = await postApi('/auth/login', payload);
+      if (response.data?.access_token) {
+        localStorage.setItem(
+          LOCAL_STORAGE_KEYS.ACCESS_TOKEN,
+          response.data.access_token
+        );
       }
+    } catch (error) {
       throw error;
     }
   };
 
   return (
-    <Grid container sx={{ justifyContent: 'center', px: isSmallScreen ? 2 : 0 }}>
-      <Typography variant={isSmallScreen ? "h4" : "h3"} textAlign="center" sx={{ width: '100%', mb: 2 }}>
+    <Grid
+      container
+      sx={{ justifyContent: 'center', px: isSmallScreen ? 2 : 0 }}
+    >
+      <Typography
+        variant={isSmallScreen ? 'h4' : 'h3'}
+        textAlign="center"
+        sx={{ width: '100%', mb: 2 }}
+      >
         Login
       </Typography>
-      <form onSubmit={handleSubmit} autoComplete="off">
-        <Grid
-          container
-          sx={{
-            my: 4,
-            maxWidth: isSmallScreen ? '100%' : '600px',
-            width: isSmallScreen ? '100%' : '400px',
-            border: '1px solid #efefef',
-            borderRadius: '6px',
-            p: isSmallScreen ? 2 : 4,
-            flexDirection: 'column',
-            gap: 2,
+      <Grid
+        container
+        sx={{
+          my: 4,
+          maxWidth: isSmallScreen ? '100%' : '600px',
+          width: isSmallScreen ? '100%' : '500px',
+          border: '1px solid #efefef',
+          borderRadius: '6px',
+          px: isSmallScreen ? 2 : 3,
+          py: isSmallScreen ? 1 : 2,
+          flexDirection: 'column',
+          gap: 2,
+        }}
+      >
+        <FormBuilder
+          config={formConfig}
+          onSubmit={handleSubmit}
+          submitButtonProps={{
+            label: 'Login',
           }}
-        >
-          <TextField
-            id="email"
-            label="Email"
-            variant="outlined"
-            fullWidth
-            placeholder="Enter your email"
-            onChange={handleInputChange}
-            value={loginPayload.email}
-          />
-          <TextField
-            id="password"
-            label="Password"
-            type="password"
-            variant="outlined"
-            fullWidth
-            placeholder="Enter your password"
-            onChange={handleInputChange}
-            value={loginPayload.password}
-          />
-          <Button
-            variant="contained"
-            color="primary"
-            type="submit"
-            fullWidth
-            disabled={!loginPayload.email || !loginPayload.password}
-            sx={{ mt: 2, py: isSmallScreen ? 1.5 : 1 }}
-            {...(isSubmitting ? {
-              endIcon: <CircularProgress size={18} sx={{ color: 'white' }} />,
-            } : {})}
-          >
-            Login
-          </Button>
-          <Grid
-            container
-            sx={{ alignItems: 'center', justifyContent: 'center', mt: 2 }}
-          >
-            <Typography sx={{ mr: 1 }}>Don't have an account?</Typography>
-            <Button
-              variant="text"
-              color="info"
-              onClick={() => navigate('/register')}
-              sx={{
-                '&:hover': {
-                  background: 'none',
-                },
-                textDecoration: 'underline',
-              }}
-            >
-              Register
-            </Button>
-          </Grid>
-        </Grid>
-      </form>
+        />
+      </Grid>
     </Grid>
   );
 };

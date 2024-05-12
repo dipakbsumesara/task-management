@@ -5,15 +5,16 @@ import RenderRoutes from './helpers/routes';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Button } from '@mui/material';
+import { LOCAL_STORAGE_KEYS } from './helpers/constants';
 
 const App = () => {
   const isLoggedIn = useMemo(() => {
-    return !!localStorage.getItem('access-token');
+    return !!localStorage.getItem(LOCAL_STORAGE_KEYS.ACCESS_TOKEN);
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('access-token');
-    location.href = "/";
+    localStorage.removeItem(LOCAL_STORAGE_KEYS.ACCESS_TOKEN);
+    location.href = '/';
   };
 
   return (

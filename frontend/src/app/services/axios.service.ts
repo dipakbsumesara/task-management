@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { LOCAL_STORAGE_KEYS } from '../helpers/constants';
 
 const _axios = axios.create({
   baseURL: process.env.REACT_APP_API_URL,
@@ -6,7 +7,7 @@ const _axios = axios.create({
 
 _axios.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('access-token'); // Retrieve the token from storage
+    const token = localStorage.getItem(LOCAL_STORAGE_KEYS.ACCESS_TOKEN); // Retrieve the token from storage
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`; // Append token to headers
     }
@@ -55,7 +56,7 @@ export const getApi = async (url: string) => {
 
 export const postApi = async (url: string, payload: any) => {
   try {
-    return await _axios.post(url, payload);
+    return await _axios.post(url, payload).then((resp) => resp.data);
   } catch (error) {
     throw error;
   }
