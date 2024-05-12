@@ -49,6 +49,7 @@ export type FormConfig = IField[];
 export interface IFormBuilderProps {
   config: FormConfig;
   onSubmit: (data: FieldValues) => void;
+  defaultValues?: any;
   submitButtonProps?: {
     type?: 'button' | 'reset' | 'submit' | undefined;
     variant?: 'contained' | 'text' | 'outlined';

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   useForm,
   Controller,
@@ -18,12 +18,7 @@ import {
 import { IFormBuilderProps, IFormFieldProps } from 'index';
 
 // The FormField component responsible for rendering each field
-const FormField: React.FC<IFormFieldProps> = ({
-  field,
-  register,
-  control,
-  errors,
-}) => {
+const FormField: React.FC<IFormFieldProps> = ({ field, control, errors }) => {
   const {
     id,
     name,
@@ -38,17 +33,27 @@ const FormField: React.FC<IFormFieldProps> = ({
   switch (inputType) {
     case 'text':
       return (
-        <TextField
-          variant="outlined"
-          margin="normal"
-          fullWidth
-          id={id}
-          label={label}
-          placeholder={placeholder}
-          error={!!errors[name]}
-          helperText={errors[name]?.message}
-          type={fieldType || "text"}
-          {...register(name, validation)}
+        <Controller
+          name={name}
+          control={control}
+          rules={validation}
+          render={({ field: { onChange, onBlur, value, ref } }) => (
+            <TextField
+              variant="outlined"
+              margin="normal"
+              fullWidth
+              id={id}
+              label={label}
+              placeholder={placeholder}
+              type={fieldType || 'text'}
+              error={!!errors[name]}
+              helperText={errors[name]?.message}
+              onChange={onChange}
+              onBlur={onBlur}
+              value={value}
+              inputRef={ref}
+            />
+          )}
         />
       );
 
@@ -60,8 +65,15 @@ const FormField: React.FC<IFormFieldProps> = ({
             name={name}
             control={control}
             rules={validation}
-            render={({ field }) => (
-              <Select labelId={`${id}-label`} label={label} {...field}>
+            render={({ field: { onChange, onBlur, value, ref } }) => (
+              <Select
+                labelId={`${id}-label`}
+                label={label}
+                value={value}
+                onChange={onChange}
+                onBlur={onBlur}
+                ref={ref}
+              >
                 {options?.map((option, index) => (
                   <MenuItem key={index} value={option.value}>
                     {option.label}
@@ -86,13 +98,26 @@ const FormBuilder: React.FC<IFormBuilderProps> = ({
   config,
   onSubmit,
   submitButtonProps,
+  defaultValues = {},
 }) => {
   const {
     register,
     handleSubmit,
     control,
+    reset,
+    setValue,
     formState: { errors },
-  } = useForm();
+  } = useForm({ values: defaultValues });
+
+  // Effect to reset the form with default values when they change
+  useEffect(() => {
+    if (defaultValues) {
+      for (const key in defaultValues) {
+        const value = defaultValues[key];
+        setValue(key, value);
+      }
+    }
+  }, [setValue, defaultValues]);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate autoComplete="off">
